@@ -1,5 +1,5 @@
 import React from 'react';
-import { Animated, View, Dimensions, StyleSheet } from 'react-native';
+import { Animated, View, Dimensions, StyleSheet, PanResponder } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -21,21 +21,57 @@ export class Navigator extends React.Component {
 
     const sceneConfig = buildSceneConfig(props.children);
     const initialSceneName = props.initialSceneName || props.children[0].props.name;
+
     this.state = {
       sceneConfig,
       stack: [sceneConfig[initialSceneName]],
     };
-    this._animatedValue = new Animated.Value(0);
   }
+
+  _animatedValue = new Animated.Value(0);
+
+  _panResponder = PanResponder.create({
+    onMoveShouldSetPanResponder: (evt, gestureState) => {
+      const isFirstScreen = this.state.stack.length === 1
+      const isFarLeft = evt.nativeEvent.pageX < Math.floor(width * 0.25);
+
+      if (!isFirstScreen && isFarLeft) {
+        return true;
+      }
+      return false;
+    },
+    onPanResponderMove: (evt, gestureState) => {
+      this._animatedValue.setValue(gestureState.moveX);
+    },
+    onPanResponderTerminationRequest: (evt, gestureState) => true,
+    onPanResponderRelease: (evt, gestureState) => {
+      if (Math.floor(gestureState.moveX) >= width / 2) {
+        this.handlePop();
+      } else {
+        Animated.timing(this._animatedValue, {
+          toValue: 0,
+          duration: 250,
+          useNativeDriver: true,
+        }).start();
+      }
+    },
+    onPanResponderTerminate: (evt, gestureState) => {
+      Animated.timing(this._animatedValue, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }).start();
+    },
+  });
 
   handlePush = (sceneName) => {
     this.setState(state => ({
       ...state,
       stack: [...state.stack, state.sceneConfig[sceneName]],
     }), () => {
-      this._animatedValue.setValue(0);
+      this._animatedValue.setValue(width);
       Animated.timing(this._animatedValue, {
-        toValue: 1,
+        toValue: 0,
         duration: 250,
         useNativeDriver: true,
       }).start();
@@ -44,11 +80,11 @@ export class Navigator extends React.Component {
 
   handlePop = () => {
     Animated.timing(this._animatedValue, {
-      toValue: 0,
+      toValue: width,
       duration: 250,
       useNativeDriver: true,
     }).start(() => {
-      this._animatedValue.setValue(1);
+      this._animatedValue.setValue(0);
       this.setState(state => {
         const { stack } = state;
         if (stack.length > 1) {
@@ -67,7 +103,7 @@ export class Navigator extends React.Component {
     const { sceneConfig, stack } = this.state;
 
     return (
-      <View style={[styles.container, { backgroundColor }]}>
+      <View style={[styles.container, { backgroundColor }]} {...this._panResponder.panHandlers}>
         {stack.map((scene, index) => {
           const CurrentScene = scene.component;
           const sceneStyles = [styles.scene];
@@ -76,10 +112,7 @@ export class Navigator extends React.Component {
             sceneStyles.push({
               transform: [
                 {
-                  translateX: this._animatedValue.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [width, 0],
-                  })
+                  translateX: this._animatedValue,
                 }
               ]
             });
