@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Button } from 'react-native';
+import { StyleSheet, Text, View, Button } from 'react-native';
 import { Navigator, Route } from './Navigator';
 
 const Screen1 = ({ navigator }) => (
@@ -14,7 +14,6 @@ const Screen1 = ({ navigator }) => (
     />
   </View>
 );
-
 const Screen2 = ({ navigator }) => (
   <View style={[styles.screen, { backgroundColor: '#23395B' }]}>
     <Button
@@ -27,7 +26,6 @@ const Screen2 = ({ navigator }) => (
     />
   </View>
 );
-
 const Screen3 = ({ navigator }) => (
   <View style={[styles.screen, { backgroundColor: '#B9E3C6' }]}>
     <Button
@@ -50,6 +48,12 @@ export default class App extends React.Component {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   screen: {
     flex: 1,
     alignItems: 'center',
