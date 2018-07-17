@@ -2,7 +2,7 @@
 
 Navigation is a hot, and often contested, topic in React Native. It's something nearly every app has, multiple solutions exists, and they each have their pros and cons.
 
-There are great solutions out there ([React Navigation](https://reactnavigation.org/) and [React Native Navigation](https://wix.github.io/react-native-navigation/) are my top choices for a "real" app) but I think building a navigator is a _great_ exercise. It forces you to design an API, work with animations, handle gestures, and more.
+There are great solutions out there ([React Navigation](https://reactnavigation.org/) and [React Native Navigation](https://wix.github.io/react-native-navigation/) are my top choices) but I think building a navigator is a _great_ exercise to further your understanding of React Native. It forces you to design an API, work with animations, handle gestures, and more.
 
 So that's what we'll do today. We'll build a _basic_ JavaScript navigator for React Native.
 
@@ -12,7 +12,7 @@ We're going to build a navigator that allows us to keep a stack of cards. It sho
 
 - have a simple declarative API
 - allow us to push new screens onto the stack
-- pop the current one off the screen and go to the previous
+- pop the current screen off the stack and go to the previous screen
 - animate between screen transitions
 - handle user gestures for swiping back (covered in part 2)
 
@@ -28,7 +28,7 @@ You can then run the app on an iOS or Android simulator with `yarn run ios` or `
 
 ## API Design
 
-The navigator will have one `Navigator` component with which we wrap all of the valid screens. Each screen we want to register with the navigator will be passed in a `Route` component.
+The navigator will have one `Navigator` component with which we wrap all of the valid screens. Each screen we want to register with the navigator will be passed in a `Route` component. Like this:
 
 ```javascript
 <Navigator>
@@ -38,7 +38,7 @@ The navigator will have one `Navigator` component with which we wrap all of the 
 </Navigator>
 ```
 
-The top level `Navigator` component is where all the actual work happens. The `Route` component allows us to pass various properties/configuration down for each screen - in this case a name (which will be used to specific which screen should be pushed) and a component (which component should actually be rendered).
+The top level `Navigator` component is where all the actual work happens. The `Route` component allows us to pass various properties/configuration down for each screen - in this case a name (which will be used to specify which screen should be pushed) and a component (which component should actually be rendered).
 
 Each route will get a `navigator` prop passed to it and on that `navigator` prop a `push` and `pop` function will be on it. Allowing for the following type of interaction:
 
@@ -287,7 +287,7 @@ export class Navigator extends React.Component {
 
 All we're doing here is accepting a `sceneName`, which should correspond to a `name` prop given to one of our `Route` components and then finding the corresponding scene config for that route and adding it to the stack.
 
-We can then need to make the `push` function available to the current scene.
+We then need to make the `push` function available to the current scene.
 
 `Navigator.js`
 ```javascript
@@ -308,7 +308,7 @@ export class Navigator extends React.Component {
 }
 ```
 
-If you press "Screen 2" now now error occurs! But also nothing is displayed. Let's fix that.
+If you press "Screen 2" now no error occurs! But also nothing changes, despite the state change. Let's fix that.
 
 To do so we'll need to loop over `this.state.stack` and render the screens (we'll take care of styling later).
 
@@ -395,7 +395,7 @@ export class Navigator extends React.Component {
 }
 ```
 
-In the `handlePop` function we're checking if the stack has more than one screen and if so, we remove the last screen in that stack.
+In the `handlePop` function we're checking if the stack has more than one screen and, if so, we remove the last screen in that stack.
 
 Make sure you pass the `pop` function down on the `navigator` prop!
 
@@ -456,7 +456,7 @@ const { width } = Dimensions.get('window');
 
 We need `Animated` to manage animations efficiently and `Dimensions` so we can get the width of the screen.
 
-We'll then intialize a new `_animatedValue` on the component to drive the swipe animation.
+We'll then intialize a new `_animatedValue` on the component to drive the slide animation.
 
 `Navigator.js`
 ```javascript
@@ -500,7 +500,7 @@ First we set the `_animatedValue` to the width of the screen. That's what the st
 
 Once we set that value we actually do the animation. This animation brings the offset to 0 or fully visible on the screen. The `duration` I set is an arbitrary value.
 
-Finally, notice that I'm use `useNativeDriver`. This is an important thing to do when working with Animations in React Native as it will provide better performance of your animations and reduce the likelihood of "jitter" in your animations.
+Finally, notice that I'm using `useNativeDriver`. This is an important thing to do when working with Animations in React Native as it will provide better performance of your animations and reduce the likelihood of "jitter" in your animations.
 
 Now that we're setting the values correctly we need to apply them, which will happen in the `render` function.
 
@@ -545,7 +545,7 @@ export class Navigator extends React.Component {
 
 Okay, there's a bit going on here. First off we're setting up a `sceneStyles` array for the containing scene view as the styles can be different between screens.
 
-We then determine whether a screen should be animated. An animation only makes sense when there is more than 1 screen in the stack. We also want to apply the styles to the active/last screen.
+We then determine whether a screen should be animated. An animation only makes sense when there is more than 1 screen in the stack. We also only want to apply the styles to the active/last screen.
 
 We then use a `transform` style, where we target the `translateX` value, to apply the `this._animatedValue` value. When you use `useNativeDriver` you're limited on which values you can modify - transform props are one of them!
 
@@ -720,6 +720,6 @@ Looking to further work on this example? Here's a few additional things you can 
 
 ---
 
-Thanks for reading and I hope you found this exercise valuable! Whenever I want to better understanding something, or just want a code challenge, I try to find something I use often and start rebuilding it to scratch. Not only can it help you better understand what's going on but it can also help you contribute back to the open source solution you typically use!
+Thanks for reading and I hope you found this exercise valuable! Whenever I want to better understanding something, or just want a code challenge, I try to find something I use often and start rebuilding it from scratch. Not only can it help you better understand what's going on but it can also help you contribute back to the open source solution you typically use!
 
 My name is Spencer Carli - I teach people to use React Native to make their product vision a reality through online tutorials and consulting. Looking for more tutorials? Checkout [my courses](https://learn.handlebarlabs.com/), [tutorials](https://medium.com/@spencer_carli), or [Youtube channel](https://www.youtube.com/handlebarlabs)!
